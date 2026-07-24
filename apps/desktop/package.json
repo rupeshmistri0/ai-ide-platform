@@ -1,0 +1,17 @@
+{
+  "name": "desktop-app",
+  "version": "1.0.0",
+  "main": "dist/main.js",
+  "private": true,
+  "scripts": {
+    "dev": "tsc && electron .",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@ai-ide/core": "workspace:*"
+  },
+  "devDependencies": {
+    "electron": "^25.0.0",
+    "typescript": "^5.0.0"
+  }
+}
