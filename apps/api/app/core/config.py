@@ -23,6 +23,7 @@ class Settings(BaseSettings):
     # AI Defaults
     DEFAULT_AI_MODEL: str = "gemini-1.5-pro"
     DEFAULT_AI_TEMPERATURE: float = 0.7
+    OLLAMA_BASE_URL: str = "http://localhost:11434"
     
     # CORS
     BACKEND_CORS_ORIGINS: List[str] = [

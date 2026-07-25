@@ -54,6 +54,8 @@ def read_root():
         "health_check": "/health"
     }
 
+from app.api.v1.endpoints.health import get_health
+
 @app.get("/health")
-def health_check():
-    return {"status": "healthy", "database": "connected"}
+async def health_check():
+    return await get_health()
