@@ -1,3 +1,5 @@
+export * from '@ai-ide/core';
+
 export interface SystemInfo {
   platform: string;
   arch: string;
