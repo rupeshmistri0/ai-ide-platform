@@ -1,10 +1,11 @@
+import uuid
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-from jose import JWTError, jwt
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
 from app.core.config import settings
+from app.core.security import verify_token
 from app.db.session import get_async_db
 from app.db.models.user import User
 
@@ -18,23 +19,34 @@ async def get_current_user(
 ) -> User:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
+        detail="Could not validate access credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
+    
+    payload = verify_token(token, expected_type="access")
+    if not payload:
+        raise credentials_exception
+        
+    user_id_str: str = payload.get("sub")
+    if not user_id_str:
+        raise credentials_exception
+
     try:
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
-        user_id: str = payload.get("sub")
-        if user_id is None:
-            raise credentials_exception
-    except JWTError:
+        user_id = uuid.UUID(user_id_str)
+    except (ValueError, TypeError):
         raise credentials_exception
 
     result = await db.execute(select(User).where(User.id == user_id))
     user = result.scalars().first()
+    
     if user is None:
         raise credentials_exception
     if not user.is_active:
-        raise HTTPException(status_code=400, detail="Inactive user")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Inactive or disabled user account"
+        )
+        
     return user
 
 async def get_current_active_superuser(
@@ -42,6 +54,7 @@ async def get_current_active_superuser(
 ) -> User:
     if not current_user.is_superuser:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="Not enough permissions"
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Insufficient administrative privileges"
         )
     return current_user
