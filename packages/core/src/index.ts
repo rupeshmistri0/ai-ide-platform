@@ -1,4 +1,5 @@
 export * from './types';
+export * from './config';
 export * from './http-client';
 
 export interface AgentTask {
