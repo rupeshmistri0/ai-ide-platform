@@ -9,8 +9,7 @@ from app.middleware.correlation import CorrelationIdMiddleware
 from app.middleware.timing import TimingMiddleware
 from app.db.session import engine
 from app.db.base import Base
-import app.db.models.user  # noqa: F401
-import app.db.models.project  # noqa: F401
+import app.db.models  # noqa: F401
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
