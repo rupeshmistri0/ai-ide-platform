@@ -1,6 +1,7 @@
 export * from './types';
 export * from './config';
 export * from './http-client';
+export * from './logger';
 
 export interface AgentTask {
   id: string;
