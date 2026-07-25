@@ -1,4 +1,5 @@
-// core agent runtime interface and SDK modules
+export * from './http-client';
+
 export interface AgentTask {
   id: string;
   instruction: string;
