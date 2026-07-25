@@ -17,18 +17,13 @@ export class WindowManager {
       title: 'Enterprise AI Web Platform',
       backgroundColor: '#030712', // Match dark theme background
       autoHideMenuBar: true,
-      show: false, // Show when ready to avoid unstyled flash
+      show: true, // Ensure window is immediately visible when launched
       webPreferences: {
         preload: PRELOAD_SCRIPT_PATH,
         contextIsolation: true,
         nodeIntegration: false,
         sandbox: false,
-        webSecurity: true,
       },
-    });
-
-    this.mainWindow.once('ready-to-show', () => {
-      this.mainWindow?.show();
     });
 
     this.mainWindow.on('closed', () => {
@@ -53,31 +48,36 @@ export class WindowManager {
     }
   }
 
-  private pollDevServerAndLoad(url: string, retryDelay = 1000): void {
+  private pollDevServerAndLoad(url: string, retryDelay = 800): void {
     let loaded = false;
+
+    // Immediately trigger initial load so renderer starts connecting
+    this.mainWindow?.loadURL(url).catch(() => {
+      // Ignore initial connection error while Next server boots
+    });
 
     const checkServer = () => {
       if (loaded) return;
 
       http
         .get(url, (res) => {
-          if ((res.statusCode === 200 || res.statusCode === 304 || res.statusCode === 302 || res.statusCode === 307) && !loaded) {
+          if (
+            res.statusCode &&
+            res.statusCode >= 200 &&
+            res.statusCode < 400 &&
+            !loaded
+          ) {
             loaded = true;
             console.log(`[Electron WindowManager] Next.js dev server ready at ${url}`);
-            
-            // Give Next.js dev server a brief moment to compile CSS on first load
-            setTimeout(() => {
-              this.mainWindow?.loadURL(url).catch((err) => {
-                console.error('[Electron WindowManager] Error loading URL:', err);
-              });
-            }, 500);
+            this.mainWindow?.loadURL(url).catch(() => {});
+            this.mainWindow?.show();
+            this.mainWindow?.focus();
           } else if (!loaded) {
             setTimeout(checkServer, retryDelay);
           }
         })
         .on('error', () => {
           if (!loaded) {
-            console.log(`[Electron WindowManager] Waiting for Next.js dev server at ${url}...`);
             setTimeout(checkServer, retryDelay);
           }
         });
