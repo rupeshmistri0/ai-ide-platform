@@ -156,6 +156,14 @@ export const mockAIModels: AIModel[] = [
     contextWindow: '64,000 tokens',
     description: 'Open reasoning model specialized for mathematical and algorithmic problems.',
   },
+  {
+    id: 'qwen2.5-coder:7b',
+    name: 'Qwen 2.5 Coder 7B',
+    provider: 'Ollama',
+    contextWindow: '32,000 tokens',
+    description: 'Local coding model with superior syntax generation, reasoning, and context understanding.',
+    isPopular: true,
+  },
 ];
 
 export const mockConversations: ChatConversation[] = [

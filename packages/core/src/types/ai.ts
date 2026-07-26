@@ -1,7 +1,7 @@
 export interface AIModel {
   id: string;
   name: string;
-  provider: 'Google' | 'Anthropic' | 'OpenAI' | 'DeepSeek';
+  provider: 'Google' | 'Anthropic' | 'OpenAI' | 'DeepSeek' | 'Ollama';
   contextWindow: string;
   description: string;
   isPopular?: boolean;
